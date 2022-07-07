@@ -20,6 +20,9 @@ NeotestAdapter.root = lib.files.match_root_pattern("Cargo.lock")
 ---@param file_path string
 ---@return boolean
 function NeotestAdapter.is_test_file(file_path)
+  if not vim.endswith(file_path, '.rs') then
+    return false
+  end
     return true
 end
 
