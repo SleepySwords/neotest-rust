@@ -32,9 +32,12 @@ end
 ---@return neotest.Tree | nil
 function NeotestAdapter.discover_positions(file_path)
   local query = [[
-	(function_item
-	  name: (identifier) @test.name)
-	  @test.definition
+	(
+	    (attribute_item) @attribute
+	    ((function_item
+	      name: (identifier) @test.name))
+	      @test.definition
+	)
 	(mod_item
 	  name: (identifier) @namespace.name)
 	  @namespace.definition

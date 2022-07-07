@@ -12,12 +12,19 @@ local bufnr = 8
 -- local language_tree = vim.treesitter.get_parser(bufnr, 'rust')
 -- local syntax_tree = language_tree:parse()
 -- local root = syntax_tree[1]:root()
+	-- ((
+	--     (attribute_item) @attribute
+	--     ((function_item
+	--       name: (identifier) @test.name))
+	-- ))
 
 local query = [[
-	
-	(function_item
-	  name: (identifier) @test.name)
-	  @test.definition
+	(
+	    (attribute_item) @attribute
+	    ((function_item
+	      name: (identifier) @test.name))
+	      @test.definition
+	)
 	(mod_item
 	  name: (identifier) @namespace.name)
 	  @namespace.definition
