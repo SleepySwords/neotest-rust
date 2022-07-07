@@ -42,7 +42,7 @@ function NeotestAdapter.discover_positions(file_path)
 	  name: (identifier) @namespace.name)
 	  @namespace.definition
     ]]
-  return lib.treesitter.parse_positions(file_path, query, { nested_namespaces = true })
+  return lib.treesitter.parse_positions(file_path, query, { require_namespaces = false })
 end
 
 ---@param args neotest.RunArgs
