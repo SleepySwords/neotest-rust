@@ -33,12 +33,11 @@ end
 function NeotestAdapter.discover_positions(file_path)
   local query = [[
 	(
-          ((attribute_item) @attribute
-	  (#match? @attribute "test")
-        )
-        . (function_item
-          name: (identifier) @test.name)
-          @test.definition
+          (attribute_item (meta_item ((identifier) @attribute)))
+	    (#eq? @attribute "test")
+          . (function_item
+            name: (identifier) @test.name)
+            @test.definition
 	)
 	(mod_item
 	  name: (identifier) @namespace.name)
@@ -49,7 +48,12 @@ end
 
 ---@param args neotest.RunArgs
 ---@return neotest.RunSpec
-function NeotestAdapter.build_spec(args) end
+function NeotestAdapter.build_spec(args)
+  local position = args.tree:data()
+  if position.type ~= "test" then
+    return
+  end
+end
 
 ---@async
 ---@param spec neotest.RunSpec
