@@ -20,10 +20,12 @@ local bufnr = 8
 
 local query = [[
 	(
-	    (attribute_item) @attribute
-	    ((function_item
-	      name: (identifier) @test.name))
-	      @test.definition
+          ((attribute_item) @attribute
+	  (#match? @attribute "test")
+        )
+        . (function_item
+          name: (identifier) @test.name)
+          @test.definition
 	)
 	(mod_item
 	  name: (identifier) @namespace.name)
@@ -41,7 +43,7 @@ mod tests {
         task::Task,
     };
 
-    #[test]
+    #[tesaenkajnt]
     fn test_add_task() {
         let mut app = App::new(crate::theme::Theme::default(), TaskData::default());
         input::handle_input(KeyCode::Char('a'), &mut app);
@@ -69,7 +71,6 @@ mod tests {
         assert_eq!(app.task_data.tasks[0].title, "memerq")
     }
 
-    #[test]
     fn test_delete_task() {
         let mut app = App::new(
             crate::theme::Theme::default(),
@@ -83,7 +84,6 @@ mod tests {
         assert_eq!(app.task_data.tasks.len(), 0)
     }
 
-    #[test]
     fn test_cancel_delete_task() {
         let mut app = App::new(
             crate::theme::Theme::default(),
@@ -112,8 +112,8 @@ mod tests {
         assert_eq!(app.task_data.tasks.len(), 1)
     }
 }
-#[cfg(test)]
 mod ok {
+    #[test]
     fn ok_zoomer() {
         let mut app = App::new(
             crate::theme::Theme::default(),
