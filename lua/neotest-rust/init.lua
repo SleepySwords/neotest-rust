@@ -14,7 +14,10 @@ local NeotestAdapter = { name="neotest-rust" }
 ---@async
 ---@param dir string @Directory to treat as cwd
 ---@return string | nil @Absolute root dir of test suite
-NeotestAdapter.root = lib.files.match_root_pattern("Cargo.lock")
+function NeotestAdapter.root(dir)
+  async.api.nvim_command('echo ' .. vim.inspect(lib.files.match_root_pattern("Cargo.lock")(dir)))
+  return lib.files.match_root_pattern("Cargo.lock")(dir)
+end
 
 ---@async
 ---@param file_path string
@@ -49,8 +52,9 @@ end
 ---@param args neotest.RunArgs
 ---@return neotest.RunSpec
 function NeotestAdapter.build_spec(args)
-  Testing(args.tree)
+  -- Testing(args.tree)
   local position = args.tree:data()
+  async.api.nvim_command('echo ' .. vim.inspect(position.id))
   local results_path = async.fn.tempname()
   local command = vim.tbl_flatten({
     "cargo", "test", "--",
