@@ -1,10 +1,10 @@
-local q = require"vim.treesitter.query"
+local q = require "vim.treesitter.query"
 local async = require("neotest.async")
 local lib = require 'neotest.lib'
 
 
 function i(value)
-    print(vim.inspect(value))
+	print(vim.inspect(value))
 end
 
 local bufnr = 8
@@ -12,11 +12,11 @@ local bufnr = 8
 -- local language_tree = vim.treesitter.get_parser(bufnr, 'rust')
 -- local syntax_tree = language_tree:parse()
 -- local root = syntax_tree[1]:root()
-	-- ((
-	--     (attribute_item) @attribute
-	--     ((function_item
-	--       name: (identifier) @test.name))
-	-- ))
+-- ((
+--     (attribute_item) @attribute
+--     ((function_item
+--       name: (identifier) @test.name))
+-- ))
 
 local query = [[
 	(
@@ -131,35 +131,35 @@ mod ok {
 }
 ]]
 async.run(function()
-    local api = async.api
-    local tree = lib.treesitter.parse_positions_from_string('test_file.rs', test_file, query, { nested_namespaces = true })
-    i(tree:to_list())
-      local buf = async.api.nvim_create_buf(false, true)
-  -- get dimensions
-  local width = api.nvim_get_option("columns")
-  local height = api.nvim_get_option("lines")
+	local api = async.api
+	local tree = lib.treesitter.parse_positions_from_string('test_file.rs', test_file, query, { nested_namespaces = true })
+	i(tree:to_list())
+	local buf = async.api.nvim_create_buf(false, true)
+	-- get dimensions
+	local width = api.nvim_get_option("columns")
+	local height = api.nvim_get_option("lines")
 
-  -- calculate our floating window size
-  local win_height = math.ceil(height * 0.8 - 4)
-  local win_width = math.ceil(width * 0.8)
+	-- calculate our floating window size
+	local win_height = math.ceil(height * 0.8 - 4)
+	local win_width = math.ceil(width * 0.8)
 
-  -- and its starting position
-  local row = math.ceil((height - win_height) / 2 - 1)
-  local col = math.ceil((width - win_width) / 2)
+	-- and its starting position
+	local row = math.ceil((height - win_height) / 2 - 1)
+	local col = math.ceil((width - win_width) / 2)
 
-  -- set some options
-  local opts = {
-    style = "minimal",
-    relative = "win",
-    width = win_width,
-    height = win_height,
-    row = row,
-    col = col
-  }
-lines = {}
-for s in vim.inspect(tree:to_list()):gmatch("[^\r\n]+") do
-    table.insert(lines, s)
-end
-  api.nvim_buf_set_lines(buf, 0, -1, false, lines)
-      win = async.api.nvim_open_win(buf, true, opts)
+	-- set some options
+	local opts = {
+		style = "minimal",
+		relative = "win",
+		width = win_width,
+		height = win_height,
+		row = row,
+		col = col
+	}
+	local lines = {}
+	for s in vim.inspect(tree:to_list()):gmatch("[^\r\n]+") do
+		table.insert(lines, s)
+	end
+	api.nvim_buf_set_lines(buf, 0, -1, false, lines)
+	win = async.api.nvim_open_win(buf, true, opts)
 end)
