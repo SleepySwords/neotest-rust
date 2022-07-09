@@ -15,7 +15,7 @@ local NeotestAdapter = { name="neotest-rust" }
 ---@param dir string @Directory to treat as cwd
 ---@return string | nil @Absolute root dir of test suite
 function NeotestAdapter.root(dir)
-  async.api.nvim_command('echo ' .. vim.inspect(lib.files.match_root_pattern("Cargo.lock")(dir)))
+  -- async.api.nvim_command('echo ' .. vim.inspect(lib.files.match_root_pattern("Cargo.lock")(dir)))
   return lib.files.match_root_pattern("Cargo.lock")(dir)
 end
 
@@ -46,13 +46,27 @@ function NeotestAdapter.discover_positions(file_path)
 	  name: (identifier) @namespace.name)
 	  @namespace.definition
     ]]
-  return lib.treesitter.parse_positions(file_path, query, { require_namespaces = false })
+  return lib.treesitter.parse_positions(file_path, query, {
+      require_namespaces = false,
+      position_id = function (position, namespaces)
+        async.api.nvim_command('echo ' .. vim.inspect(position) .. ' ' .. vim.inspect(namespaces))
+        return table.concat(
+          vim.tbl_flatten({
+            position.path,
+            vim.tbl_map(function(pos)
+              return pos.name
+            end, namespaces),
+            position.name,
+          }),
+          "::"
+        )
+      end
+  })
 end
 
 ---@param args neotest.RunArgs
 ---@return neotest.RunSpec
 function NeotestAdapter.build_spec(args)
-  -- Testing(args.tree)
   local position = args.tree:data()
   async.api.nvim_command('echo ' .. vim.inspect(position.id))
   local results_path = async.fn.tempname()
@@ -62,36 +76,6 @@ function NeotestAdapter.build_spec(args)
     results_path,
     vim.list_extend(args.extra_args or {})
   })
-end
-
-function Testing(tree)
-  local api = async.api
-  local buf = async.api.nvim_create_buf(false, true)
-  -- get dimensions
-  local width = api.nvim_get_option("columns")
-  local height = api.nvim_get_option("lines")
-
-  -- calculate our floating window size
-  local win_height = math.ceil(height * 0.8 - 4)
-  local win_width = math.ceil(width * 0.8)
-
-  -- and its starting position
-  local row = math.ceil((height - win_height) / 2 - 1)
-  local col = math.ceil((width - win_width) / 2)
-  local opts = {
-    style = "minimal",
-    relative = "win",
-    width = win_width,
-    height = win_height,
-    row = row,
-    col = col
-  }
-  local lines = {}
-  for s in vim.inspect(tree:to_list()):gmatch("[^\r\n]+") do
-    table.insert(lines, s)
-  end
-  api.nvim_buf_set_lines(buf, 0, -1, false, lines)
-  win = async.api.nvim_open_win(buf, true, opts)
 end
 
 ---@async
