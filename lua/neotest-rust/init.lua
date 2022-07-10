@@ -34,7 +34,7 @@ end
 -- Literally the most sketch thing
 local function extract_module(path)
   local root = NeotestAdapter.root(path)
-  path = path:gsub('^' .. escape_pattern(root .. '/src/'), '')
+  path = path:gsub('^' .. escape_pattern(root) .. '/src/?', '')
   path = path:gsub('/mod.rs$', '')
   -- should be path seperator but oh well
   path = path:gsub('/', '::')
@@ -106,7 +106,13 @@ function NeotestAdapter.build_spec(args)
     args.extra_args or {}
   })
   if position then
-    table.insert(command, position.id)
+    if position.type == 'dir' or position.type == 'file' then
+      local module = extract_module(position.id)
+      table.insert(command, module)
+    end
+    if position.type == 'namespace' or position.type == 'test' then
+      table.insert(command, position.id)
+    end
   end
   -- TODO: add DAP support
   return {
@@ -142,6 +148,7 @@ function NeotestAdapter.results(spec, r, tree)
         status = 'passed'
       elseif result[1] == 'failed' then
         status = 'failed'
+	-- should set parents as failed as well
       end
       results[result[2]] = { status = status }
     end
